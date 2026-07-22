@@ -19,7 +19,7 @@ function Signup(){
   const onSubmit = (data) => {
     console.log(data);
 
-    // Backend data ko send kar dena chaiye?
+    // data needed to send at backend
   };
 
   return (
