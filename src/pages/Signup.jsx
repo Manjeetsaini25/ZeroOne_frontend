@@ -1,6 +1,10 @@
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router';
+import {registerUser} from '../authSlice'
+import { useEffect } from 'react';
 
 const signupSchema = z.object({
   firstName: z.string().min(3, "Minimum character should be 3"),
@@ -9,6 +13,9 @@ const signupSchema = z.object({
 });
 
 function Signup(){
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { isAuthenticated, } = useSelector((state) => state.auth);
 
     const {
     register,
@@ -16,10 +23,14 @@ function Signup(){
     formState: { errors },
   } = useForm({ resolver: zodResolver(signupSchema) });
 
-  const onSubmit = (data) => {
-    console.log(data);
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated,navigate]);
 
-    // data needed to send at backend
+  const onSubmit = (data) => {
+    dispatch(registerUser(data));
   };
 
   return (

@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router';
+import {loginUser} from "../authSlice"
 
 const loginSchema = z.object({
   emailId: z.string().min(1, 'Email is required').email('Enter a valid email'),
@@ -13,18 +16,28 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { isAuthenticated,} = useSelector((state) => state.auth);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm({ resolver: zodResolver(loginSchema), mode: 'onBlur' });
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
+
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     try {
       // Replace with your real auth call
       await new Promise((resolve) => setTimeout(resolve, 900));
-      console.log(data);
+      dispatch(loginUser(data));
     } finally {
       setIsSubmitting(false);
     }
