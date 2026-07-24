@@ -8,12 +8,39 @@ import { useEffect } from "react";
 
 function App() {
   const dispatch = useDispatch();
-  const {isAuthenticated} = useSelector((state)=>state.auth);
+  const {isAuthenticated,loading} = useSelector((state)=>state.auth);
 
   // check initial authentication
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-neutral-950">
+        <div className="relative w-16 h-16">
+          {/* Outer spinning gradient ring */}
+          <div
+            className="absolute inset-0 rounded-full animate-spin"
+            style={{
+              background:
+                "conic-gradient(from 0deg, transparent, #6366f1 70%, transparent)",
+              WebkitMask:
+                "radial-gradient(farthest-side, transparent calc(100% - 4px), black calc(100% - 4px))",
+              mask:
+                "radial-gradient(farthest-side, transparent calc(100% - 4px), black calc(100% - 4px))",
+            }}
+          />
+
+          {/* Inner pulsing dot */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <>
