@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { checkAuth } from "./authSlice";
 import { useEffect } from "react";
 import AdminPanel from "./pages/AdminPanel.jsx";
+import CreateProblem from "./components/CreateProblem.jsx"
 
 function App() {
   const dispatch = useDispatch();
@@ -57,6 +58,7 @@ function App() {
             <Navigate to="/" />
         }
       />
+      <Route path="/admin/create" element={<CreateProblem />} />
        </Routes>
     </>
   )
