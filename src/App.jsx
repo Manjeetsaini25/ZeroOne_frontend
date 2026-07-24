@@ -5,10 +5,11 @@ import Homepage from "./pages/Homepage";
 import { useDispatch, useSelector } from 'react-redux';
 import { checkAuth } from "./authSlice";
 import { useEffect } from "react";
+import AdminPanel from "./pages/AdminPanel.jsx";
 
 function App() {
   const dispatch = useDispatch();
-  const {isAuthenticated,loading} = useSelector((state)=>state.auth);
+  const {isAuthenticated,loading,user} = useSelector((state)=>state.auth);
 
   // check initial authentication
   useEffect(() => {
@@ -48,7 +49,15 @@ function App() {
       <Route path="/" element={isAuthenticated ?<Homepage></Homepage>:<Navigate to="/signup" />}></Route>
       <Route path="/login" element={isAuthenticated?<Navigate to="/" />:<Login></Login>}></Route>
       <Route path="/signup" element={isAuthenticated?<Navigate to="/" />:<Signup></Signup>}></Route>
-    </Routes>
+    <Route 
+        path="/admin" 
+        element={
+          isAuthenticated && user?.role === 'admin' ? 
+            <AdminPanel /> : 
+            <Navigate to="/" />
+        }
+      />
+       </Routes>
     </>
   )
 }

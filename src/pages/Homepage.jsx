@@ -192,6 +192,16 @@ function Homepage() {
                       Logout
                     </button>
                   </li>
+                  {user?.role === 'admin' && (
+                    <li>
+                      <NavLink
+                        to="/admin"
+                        className={`block px-4 py-2 text-sm ${textSub} hover:text-blue-500 rounded-lg transition-colors`}
+                      >
+                        Admin Panel
+                      </NavLink>
+                    </li>
+                  )}
                 </ul>
               </div>
             </div>
