@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import AdminPanel from "./pages/AdminPanel.jsx";
 import CreateProblem from "./components/CreateProblem.jsx"
 import ProblemPage from "./pages/ProblemPage"
+import AdminDelete from "./components/AdminDelete"
 
 function App() {
   const dispatch = useDispatch();
@@ -61,6 +62,7 @@ function App() {
       />
       <Route path="/admin/create" element={<CreateProblem />} />
       <Route path="/problem/:problemId" element={<ProblemPage/>}></Route>
+      <Route path="/admin/delete" element={isAuthenticated && user?.role === 'admin' ? <AdminDelete /> : <Navigate to="/" />} />
        </Routes>
     </>
   )
