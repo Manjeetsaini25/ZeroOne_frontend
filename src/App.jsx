@@ -7,6 +7,7 @@ import { checkAuth } from "./authSlice";
 import { useEffect } from "react";
 import AdminPanel from "./pages/AdminPanel.jsx";
 import CreateProblem from "./components/CreateProblem.jsx"
+import ProblemPage from "./pages/ProblemPage"
 
 function App() {
   const dispatch = useDispatch();
@@ -59,6 +60,7 @@ function App() {
         }
       />
       <Route path="/admin/create" element={<CreateProblem />} />
+      <Route path="/problem/:problemId" element={<ProblemPage/>}></Route>
        </Routes>
     </>
   )
