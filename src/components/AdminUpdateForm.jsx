@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { NavLink, useNavigate } from 'react-router';
+import { NavLink, useNavigate, useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import axiosClient from '../utils/axiosClient';
 import { logoutUser } from '../authSlice';
@@ -12,7 +12,7 @@ const problemSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().min(1, 'Description is required'),
   difficulty: z.enum(['easy', 'medium', 'hard']),
-  tags: z.enum(['array', 'linkedList', 'graph', 'dp']),
+  tags: z.enum(['array', 'linkedList', 'graph', 'dp', 'greedy', 'tree']),
   visibleTestCases: z
     .array(
       z.object({
@@ -48,10 +48,14 @@ const problemSchema = z.object({
     .length(3, 'All three languages required'),
 });
 
-function CreateProblem() {
+function AdminUpdateForm() {
+  const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
+
+  const [loadingProblem, setLoadingProblem] = useState(true);
+  const [loadError, setLoadError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem('zo-theme') || 'light');
   const dark = theme === 'dark';
@@ -64,6 +68,7 @@ function CreateProblem() {
     register,
     control,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(problemSchema),
@@ -97,6 +102,50 @@ function CreateProblem() {
     remove: removeHidden,
   } = useFieldArray({ control, name: 'hiddenTestCases' });
 
+  // Fetch the existing problem and prefill the form
+  useEffect(() => {
+    const fetchProblem = async () => {
+      try {
+        setLoadingProblem(true);
+        setLoadError(null);
+        const { data } = await axiosClient.get(`/problem/problemById/${id}`);
+
+        reset({
+          title: data.title,
+          description: data.description,
+          difficulty: data.difficulty,
+          tags: data.tags,
+          visibleTestCases: data.visibleTestCases?.length
+            ? data.visibleTestCases
+            : [{ input: '', output: '', explanation: '' }],
+          hiddenTestCases: data.hiddenTestCases?.length
+            ? data.hiddenTestCases
+            : [{ input: '', output: '' }],
+          startCode: data.startCode?.length === 3
+            ? data.startCode
+            : [
+                { language: 'C++', initialCode: '' },
+                { language: 'Java', initialCode: '' },
+                { language: 'JavaScript', initialCode: '' },
+              ],
+          referenceSolution: data.referenceSolution?.length === 3
+            ? data.referenceSolution
+            : [
+                { language: 'C++', completeCode: '' },
+                { language: 'Java', completeCode: '' },
+                { language: 'JavaScript', completeCode: '' },
+              ],
+        });
+      } catch (error) {
+        setLoadError(error.response?.data?.message || 'Failed to load problem');
+      } finally {
+        setLoadingProblem(false);
+      }
+    };
+
+    if (id) fetchProblem();
+  }, [id, reset]);
+
   const handleLogout = () => {
     dispatch(logoutUser());
   };
@@ -104,7 +153,7 @@ function CreateProblem() {
   const onSubmit = async (data) => {
     setSubmitting(true);
     try {
-      await axiosClient.post('/problem/create', data);
+      await axiosClient.put(`/problem/update/${id}`, data);
       navigate('/admin');
     } catch (error) {
       alert(`Error: ${error.response?.data?.message || error.message}`);
@@ -113,7 +162,7 @@ function CreateProblem() {
     }
   };
 
-  // ---- theme tokens (matches Homepage / AdminPanel) ----
+  // ---- theme tokens (matches Homepage / AdminPanel / CreateProblem) ----
   const bg = dark ? 'bg-[#0a0e1a]' : 'bg-[#f7f8fb]';
   const surface = dark ? 'bg-[#111827]' : 'bg-white';
   const surfaceAlt = dark ? 'bg-[#0f1420]' : 'bg-[#f1f4f9]';
@@ -127,6 +176,45 @@ function CreateProblem() {
   const labelClass = `block text-sm font-medium mb-1.5 ${textSub}`;
   const errorClass = 'text-xs text-rose-500 mt-1';
   const sectionClass = `rounded-2xl border ${border} ${surface} p-5 sm:p-6`;
+
+  if (loadingProblem) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${bg}`}>
+        <div className="relative w-12 h-12">
+          <div
+            className="absolute inset-0 rounded-full animate-spin"
+            style={{
+              background: `conic-gradient(from 0deg, transparent, ${accent} 70%, transparent)`,
+              mask: 'radial-gradient(farthest-side, transparent calc(100% - 3px), black calc(100% - 3px))',
+              WebkitMask: 'radial-gradient(farthest-side, transparent calc(100% - 3px), black calc(100% - 3px))',
+            }}
+          />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${bg} px-4`}>
+        <div
+          className="rounded-2xl border p-6 max-w-md w-full flex items-start gap-3"
+          style={{ borderColor: '#f43f5e55', backgroundColor: '#f43f5e0f' }}
+        >
+          <div>
+            <p className={`text-sm font-semibold ${textPrimary}`}>Couldn't load this problem</p>
+            <p className={`text-sm mt-1 ${textSub}`}>{loadError}</p>
+            <NavLink to="/admin" className="inline-block mt-3 text-sm font-medium text-blue-500 hover:text-blue-600">
+              ← Back to Admin
+            </NavLink>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`min-h-screen ${bg} transition-colors duration-300`}>
@@ -215,9 +303,9 @@ function CreateProblem() {
               <div>
                 <p className="font-mono text-xs text-blue-500 mb-2 tracking-wide"></p>
                 <h1 className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${textPrimary}`}>
-                  Create a new problem
+                  Update problem
                 </h1>
-                <p className={`mt-2 ${textSub}`}>Fill in the details, test cases, and code templates below.</p>
+                <p className={`mt-2 ${textSub}`}>Edit the details, test cases, and code templates below.</p>
               </div>
               <NavLink
                 to="/admin"
@@ -263,8 +351,9 @@ function CreateProblem() {
                     <select {...register('tags')} className={inputClass}>
                       <option value="array">Array</option>
                       <option value="linkedList">Linked List</option>
-                      <option value="graph">Tree</option>
-                      <option value="graph">Greedy</option>
+                      <option value="tree">Tree</option>
+                      <option value="graph">Graph</option>
+                      <option value="greedy">Greedy</option>
                       <option value="dp">DP</option>
                     </select>
                   </div>
@@ -408,7 +497,7 @@ function CreateProblem() {
               disabled={submitting}
               className="w-full rounded-xl bg-blue-500 text-white font-semibold py-3 hover:bg-blue-600 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
             >
-              {submitting ? 'Creating...' : 'Create Problem'}
+              {submitting ? 'Updating...' : 'Update Problem'}
             </button>
           </form>
         </div>
@@ -417,4 +506,4 @@ function CreateProblem() {
   );
 }
 
-export default CreateProblem;
+export default AdminUpdateForm;
