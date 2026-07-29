@@ -4,8 +4,8 @@ import Editor from '@monaco-editor/react';
 import { useParams, NavLink } from 'react-router';
 import axiosClient from "../utils/axiosClient"
 import SubmissionHistory from "../components/SubmissionHistory"
+import ChatAi from '../components/ChatAi';
 
-// ---- shared icon primitives (same language as Homepage) ----
 const DotIcon = (
   <svg viewBox="0 0 16 16" fill="currentColor">
     <circle cx="8" cy="8" r="5" />
@@ -104,38 +104,40 @@ const ProblemPage = () => {
   const accent = '#3b82f6';
 
   // Fetch problem data
-  useEffect(() => {
-    const fetchProblem = async () => {
-      setLoading(true);
-      try {
-        const response = await axiosClient.get(`/problem/problemById/${problemId}`);
+const LANGUAGE_MAP = {
+  'c++': 'cpp',
+  'java': 'java',
+  'javascript': 'javascript',
+};
 
-        const initialCode = response.data.startCode.find((sc) => {
-          if (sc.language == "C++" && selectedLanguage == 'cpp') return true;
-          else if (sc.language == "Java" && selectedLanguage == 'java') return true;
-          else if (sc.language == "Javascript" && selectedLanguage == 'javascript') return true;
-          return false;
-        })?.initialCode || 'Hello';
+const getStartCodeForLanguage = (startCode, lang) => {
+  return startCode.find(
+    (sc) => LANGUAGE_MAP[sc.language?.toLowerCase()] === lang
+  )?.initialCode || '';
+};
 
-        setProblem(response.data);
-        setCode(initialCode);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching problem:', error);
-        setLoading(false);
-      }
-    };
-
-    fetchProblem();
-  }, [problemId]);
-
-  // Update code when language changes
-  useEffect(() => {
-    if (problem) {
-      const initialCode = problem.startCode.find(sc => sc.language === selectedLanguage)?.initialCode || '';
-      setCode(initialCode);
+useEffect(() => {
+  const fetchProblem = async () => {
+    setLoading(true);
+    try {
+      const response = await axiosClient.get(`/problem/problemById/${problemId}`);
+      setProblem(response.data);
+      setCode(getStartCodeForLanguage(response.data.startCode, selectedLanguage));
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching problem:', error);
+      setLoading(false);
     }
-  }, [selectedLanguage, problem]);
+  };
+  fetchProblem();
+}, [problemId]);
+
+// Update code when language changes
+useEffect(() => {
+  if (problem) {
+    setCode(getStartCodeForLanguage(problem.startCode, selectedLanguage));
+  }
+}, [selectedLanguage, problem]);
 
   const handleEditorChange = (value) => {
     setCode(value || '');
@@ -258,6 +260,7 @@ const ProblemPage = () => {
     { id: 'editorial', label: 'Editorial' },
     { id: 'solutions', label: 'Solutions' },
     { id: 'submissions', label: 'Submissions' },
+    { id: 'chat', label:'Ai Chat'}
   ];
 
   const rightTabs = [
@@ -429,6 +432,14 @@ const ProblemPage = () => {
                     <SubmissionHistory problemId={problemId} /></div>
                   </div>
                 )}
+                {activeLeftTab === 'chat' && (
+                <div className="prose max-w-none">
+                  <h2 className="text-xl font-bold mb-4">CHAT with AI</h2>
+                  <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                    <ChatAi problem={problem}></ChatAi>
+                  </div>
+                </div>
+              )}
               </>
             )}
           </div>
