@@ -1,16 +1,90 @@
-# React + Vite
+# 🚀 Project Name
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Zero One --- A Coding platform where you can solve problems related to Data Structure.
 
-Currently, two official plugins are available:
+## 🌐 Live Demo
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Experience the application live by visiting the deployed website:
 
-## React Compiler
+**🔗 Live URL:** https://zeroone-frontend.onrender.com/
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+> **Note:** The application is hosted on Render. The initial request may take a few seconds if the server has been idle.
 
-## Expanding the ESLint configuration
+## 🛠️ Tech Stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+* React.js
+* JavaScript
+* CSS3 / Tailwind CSS (if used)
+* DaisyUi
+* Redux
+* Zod
+* Monaco Editor
+* Axios
+
+---
+
+## 📂 Clone the Repository
+
+```bash
+git clone https://github.com/Manjeetsaini25/ZeroOne_frontend.git
+```
+
+Move into the project directory:
+
+```bash
+cd ZeroOne_frontend
+```
+
+---
+
+## 📦 Install Dependencies
+
+```bash
+npm install
+```
+
+---
+
+## ▶️ Run the Project
+
+```bash
+npm run dev
+```
+
+The application will start on:
+```
+http://localhost:5173
+```
+---
+---
+
+## For Creating Admin
+You need to manually assign admin role in database.
+
+---
+
+```
+project/
+│
+├── public/
+├── src/
+│   ├── assets/
+│   ├── components/
+│   ├── pages/
+│   ├── hooks/
+│   ├── services/
+│   ├── utils/
+│   ├── App.jsx
+│   └── main.jsx
+│
+├── package.json
+└── README.md
+```
+
+---
+
+## 📸 Screenshots
+
+Open images folder to check interface.
+
+---
